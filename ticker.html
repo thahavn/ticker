@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lower Third News Ticker</title>
+  <meta name="viewport" content="width=1920, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@600&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 1920px;
+      height: 1080px;
+      background: transparent;
+      font-family: 'Anek Malayalam', sans-serif;
+      overflow: hidden;
+    }
+
+    .ticker-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 140px;
+      background-color: #b30000;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 20px 30px 20px 280px;
+      box-sizing: border-box;
+      z-index: 9999;
+    }
+
+    .headline-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    #headline {
+      animation: slideUp 0.4s ease-out;
+      white-space: normal;
+      line-height: 1.4em;
+      font-size: 39px;
+      font-weight: 600;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="ticker-container">
+  <div class="headline-wrapper">
+    <div id="headline">⏳ വാർത്തകൾ ലോഡാകുന്നു...</div>
+  </div>
+</div>
+
+<script>
+  const rssFeeds = [
+    "https://www.mediaoneonline.com/google_feeds.xml"
+  ];
+
+  let headlines = [];
+  let currentIndex = 0;
+
+  function fetchAllFeeds() {
+    const promises = rssFeeds.map(url => {
+      const proxyUrl = "https://api.codetabs.com/v1/proxy/?quest=" + encodeURIComponent(url);
+      return fetch(proxyUrl)
+        .then(res => res.text())
+        .then(data => {
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(data, "application/xml");
+          return Array.from(xml.querySelectorAll("item > title")).map(el => el.textContent);
+        })
+        .catch(err => {
+          console.error("Error fetching:", url, err);
+          return [];
+        });
+    });
+
+    Promise.all(promises).then(results => {
+      headlines = results.flat();
+      currentIndex = 0;
+      showNextHeadline();
+    });
+  }
+
+  function showNextHeadline() {
+    if (!headlines.length) return;
+    const el = document.getElementById("headline");
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.textContent = headlines[currentIndex];
+    el.style.animation = "slideUp 0.4s ease-out";
+    currentIndex = (currentIndex + 1) % headlines.length;
+    setTimeout(showNextHeadline, 7000);
+  }
+
+  fetchAllFeeds();
+  setInterval(fetchAllFeeds, 60000); // refresh every 60 seconds
+</script>
+
+</body>
+</html>
