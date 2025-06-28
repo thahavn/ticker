@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <title>OBS Headlines</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      font-family: 'Anek Malayalam', sans-serif;
+      color: white;
+      font-size: 22px;
+      text-align: center;
+      text-shadow: 1px 1px 2px black;
+      font-weight: 900;
+      width: 250px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+<div id="newsBox">⏳ Loading headlines...</div>
+<script>
+let headlines = [];
+let index = 0;
+const box = document.getElementById("newsBox");
+
+function showNext() {
+  if (!headlines.length) {
+    box.innerText = "❗ Headlines not found.";
+    return;
+  }
+  box.innerText = headlines[index];
+  index = (index + 1) % headlines.length;
+  setTimeout(showNext, 6000);
+}
+
+function fetchNews() {
+  fetch('/data.json')
+    .then(res => res.json())
+    .then(data => {
+      headlines = data;
+      index = 0;
+      showNext();
+    })
+    .catch(() => {
+      box.innerText = "⚠️ Failed to load data.json";
+    });
+}
+fetchNews();
+setInterval(fetchNews, 30000);
+</script>
+</body>
+</html>

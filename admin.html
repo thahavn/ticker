@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - News Headlines</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Anek Malayalam', sans-serif;
+      background: #111;
+      color: white;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    textarea, button {
+      width: 100%;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    textarea {
+      height: 150px;
+      padding: 10px;
+    }
+    button {
+      padding: 10px;
+      background: #cc0000;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔴 Admin Panel - Add Malayalam Headlines</h2>
+  <textarea id="newsInput" placeholder="ഒരു വരിയിലും ഓരോ വാർത്ത എഴുതി നോക്കൂ..."></textarea>
+  <button onclick="saveNews()">Save Headlines</button>
+
+  <script>
+    function saveNews() {
+      const lines = document.getElementById("newsInput").value
+        .split('\n')
+        .map(x => x.trim())
+        .filter(Boolean);
+      fetch('/data.json', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lines.slice(-10))
+      }).then(() => alert("✅ Headlines updated successfully."))
+        .catch(() => alert("❌ Failed to update. Make sure the server is running."));
+    }
+  </script>
+</body>
+</html>
